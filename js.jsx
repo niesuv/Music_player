@@ -15,10 +15,12 @@ const prevBtn = $(".btn-prev");
 const nextBtn = $(".btn-next");
 const playlist = $(".playlist");
 const randomBtn = $('.btn-random')
+const repeatBtn = $('.btn-repeat')
 const app = {
   currentIndex: 0,
   isPlaying: false,
   isRandom : false,
+  isRepeat : false,
   songs: [
     {
       name: "7 Rings",
@@ -53,7 +55,7 @@ const app = {
   render: function () {
     const htmls = this.songs.map((song, index) => {
       return `
-      <div class="song">
+      <div class="song ${index === this.currentIndex ? "active" : ""}">
       <div class="thumb" style="background-image: url('${song.image}')">
       </div>
       <div class="body">
@@ -152,6 +154,7 @@ const app = {
           _this.nextSong()
         }
         audio.play();
+        _this.render()
       };
     prevBtn.onclick = function () {
       if (_this.isRandom) {
@@ -161,6 +164,8 @@ const app = {
         _this.prevSong()
       }
       audio.play();
+      _this.render()
+
     };
 
     // khi click vao random BTN
@@ -173,15 +178,17 @@ const app = {
    // khi bai hat ket thuc
 
    audio.onended = function () {
-    if (_this.isRandom) {
-      _this.getRandomSong()
-    }
-    else {
-      _this.nextSong()
-    }
-    audio.play();
-   }
+     if (_this.isRepeat) {
+       audio.play()
+     }
+      else {nextBtn.click()  }
+  }
+  // khi click vao repeat BTN
 
+  repeatBtn.onclick = function () {
+    _this.isRepeat = !_this.isRepeat
+    repeatBtn.classList.toggle('active' , _this.isRepeat)
+  }
     
   },
     //cac ham can thiet
