@@ -16,11 +16,14 @@ const nextBtn = $(".btn-next");
 const playlist = $(".playlist");
 const randomBtn = $('.btn-random')
 const repeatBtn = $('.btn-repeat')
+
+
 const app = {
   currentIndex: 0,
   isPlaying: false,
   isRandom : false,
   isRepeat : false,
+  config: JSON.parse(localStorage.getItem(PlAYER_STORAGE_KEY)) || {},
   songs: [
     {
       name: "7 Rings",
@@ -55,7 +58,7 @@ const app = {
   render: function () {
     const htmls = this.songs.map((song, index) => {
       return `
-      <div class="song ${index === this.currentIndex ? "active" : ""}">
+      <div class="song ${index === this.currentIndex ? "active" : ""}" data-index="${index}">
       <div class="thumb" style="background-image: url('${song.image}')">
       </div>
       <div class="body">
@@ -172,6 +175,7 @@ const app = {
 
     randomBtn.onclick = function () {
       _this.isRandom = !_this.isRandom
+      _this.setConfig('isRandom', _this.isRandom)
       randomBtn.classList.toggle('active' , _this.isRandom)
     }
 
@@ -186,12 +190,43 @@ const app = {
   // khi click vao repeat BTN
 
   repeatBtn.onclick = function () {
-    _this.isRepeat = !_this.isRepeat
-    repeatBtn.classList.toggle('active' , _this.isRepeat)
-  }
     
+    _this.isRepeat = !_this.isRepeat
+    _this.setConfig('isRepeat', _this.isRepeat)
+      
+      repeatBtn.classList.toggle('active' , _this.isRepeat)
+  }
+  // bam vao bai hat chuyen  
+      playlist.onclick = function (e) {
+          songNode = e.target.closest('.song:not(.active)')
+            if (songNode || e.target.closest('.option')){
+              if(songNode && !e.target.closest('.option')){
+                  _this.currentIndex = Number(songNode.getAttribute('data-index'))
+                  _this.loadCurrentSong()
+                  _this.render()
+                  audio.play()
+                }
+                if (e.target.closest('.option')){
+                }
+            }        
+      }
+
+
+
+
+
   },
     //cac ham can thiet
+  loadConfig: function () {
+    this.isRandom = this.config.isRandom
+    this.isRepeat = this.config.isRepeat
+  }
+   , 
+  setConfig: function(key, value){
+    this.config[key] = value;
+    localStorage.setItem(PlAYER_STORAGE_KEY, JSON.stringify(this.config))
+  }  
+  ,
   loadCurrentSong: function () {
     heading.textContent = this.currentSong.name;
     cdThumb.style.backgroundImage = `url('${this.currentSong.image}')`;
@@ -223,11 +258,13 @@ const app = {
   ,
     
   start: function () {
+    this.loadConfig();
     this.defineProperties();
     this.loadCurrentSong();
     this.render();
     this.handleEvents()
-
+    randomBtn.classList.toggle('active' , this.isRandom)
+    repeatBtn.classList.toggle('active' , this.isRepeat)
 }
 };
 
